@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{803FD0C6-D64E-4E16-9DC3-1DAEC859A3D2}") = "weather_station", "weather_station.vgdbproj", "{F991B555-769C-4F7B-8D3C-0980C254201C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F991B555-769C-4F7B-8D3C-0980C254201C}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{F991B555-769C-4F7B-8D3C-0980C254201C}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{F991B555-769C-4F7B-8D3C-0980C254201C}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{F991B555-769C-4F7B-8D3C-0980C254201C}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32D36D40-182F-4CAA-ACFE-F5C897020626}
+	EndGlobalSection
+EndGlobal
