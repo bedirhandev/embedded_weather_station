@@ -17,9 +17,9 @@ void app_main(void)
 	queue = xQueueCreate(2, sizeof(char*));
 	
 	/* Creating a tasks which is responsible for measuring lux. */
-	xTaskCreate(ldr_task, "ldr_task", 1024 * 3, (void*) queue, tskIDLE_PRIORITY + 2, NULL);
+	xTaskCreate(ldr_task, "ldr_task", 1024 * 2, (void*) queue, tskIDLE_PRIORITY + 2, NULL);
 	/* Creating a tasks which is responsible for measuring temperature and humdidity. */
 	xTaskCreate(i2c_task, "i2c_task", 1024 * 3, (void*) queue, tskIDLE_PRIORITY + 2, NULL);
 	/* Creating a tasks which is responsible for sending the measurements to the server. */
-	xTaskCreate(http_post_task, "http_post_task", 1024 * 5, (void*) queue, tskIDLE_PRIORITY + 1, NULL);
+	xTaskCreate(http_post_task, "http_post_task", 1024 * 4, (void*) queue, tskIDLE_PRIORITY + 1, NULL);
 }

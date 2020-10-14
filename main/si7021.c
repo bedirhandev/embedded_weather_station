@@ -250,7 +250,7 @@ void i2c_task(void *pvParameters)
 		length += sprintf(message + length, JSON_TEMPLATE, "humidity", gcvt(si7021->humidity, 4, humidity));
 		length += sprintf(message + length, ",");
 		length += sprintf(message + length, JSON_TEMPLATE, "temperature", gcvt(si7021->temperature, 4, temperature));
-		
+	
 		/* Put the JSON formatted string onto the queue. */
 		xQueueSend((QueueHandle_t *)pvParameters, &message, portMAX_DELAY);
 		

@@ -242,6 +242,7 @@ void http_post_task(void *pvParameters)
 				if ((++messages_send) == MAX_REQUESTS)
 				{
 					ESP_LOGI(TAG, "Deep sleep mode for 60 seconds.\n");
+					messages_send = 0; // obsolete
 					/* Put the uc into deep sleep mode. */
 					//esp_deep_sleep(1000000UL * SLEEP_DURATION);
 				}

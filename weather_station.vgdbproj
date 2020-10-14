@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <VisualGDBProjectSettings2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ConfigurationName>Debug</ConfigurationName>
   <Project xsi:type="com.visualgdb.project.external.esp-idf">
     <CustomSourceDirectories>
       <Directories />
       <PathStyle>Unknown</PathStyle>
     </CustomSourceDirectories>
+    <AutoProgramSPIFFSPartition>true</AutoProgramSPIFFSPartition>
     <ProjectModeSettings>
       <ProjectGUID>f991b555-769c-4f7b-8d3c-0980c254201c</ProjectGUID>
       <GroupSourcesByTypes>true</GroupSourcesByTypes>
@@ -14,6 +14,7 @@
     </ProjectModeSettings>
   </Project>
   <Build xsi:type="com.visualgdb.build.external.esp-idf">
+    <BuildLogMode xsi:nil="true" />
     <ToolchainID>
       <ID>com.visualgdb.xtensa-lx106-elf</ID>
       <Version>
@@ -44,7 +45,7 @@
   </CustomDebug>
   <DeviceTerminalSettings>
     <Connection xsi:type="com.sysprogs.terminal.connection.serial">
-      <ComPortName>COM5</ComPortName>
+      <ComPortName>COM3</ComPortName>
       <AdvancedSettings>
         <BaudRate>74880</BaudRate>
         <DataBits>8</DataBits>
@@ -171,6 +172,7 @@
       <EnableAsyncExecutionMode>false</EnableAsyncExecutionMode>
       <EnableNonStopMode>false</EnableNonStopMode>
       <MaxBreakpointLimit>0</MaxBreakpointLimit>
+      <EnableVerboseMode>true</EnableVerboseMode>
     </AdditionalGDBSettings>
     <DebugMethod>
       <ID>openocd</ID>
@@ -217,6 +219,7 @@
     <EndOfStackSymbol>_estack</EndOfStackSymbol>
     <TimestampProviderTicksPerSecond>0</TimestampProviderTicksPerSecond>
     <KeepConsoleAfterExit>false</KeepConsoleAfterExit>
+    <UnusedStackFillPattern xsi:nil="true" />
     <CheckInterfaceDrivers>true</CheckInterfaceDrivers>
   </Debug>
 </VisualGDBProjectSettings2>

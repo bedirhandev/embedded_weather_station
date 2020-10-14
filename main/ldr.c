@@ -12,11 +12,16 @@
 #include <freertos/task.h>
 #include <freertos/queue.h>
 
+#include <esp_log.h>
+#include <driver/adc.h>
+
 /** A reusable JSON template to send a JSON message onto the queue. */
 static const char* JSON_TEMPLATE = "{\"type\":\"%s\",\"value\":\"%s\"}";
 
 /** The structure that will hold the data of the made measurement. */
 typedef struct { uint32_t lux; } ldr;
+
+static const char *TAG = "adc1";
 
 /*!
  * \brief A FreeRTOS task for measuring lux using ADC.
@@ -33,10 +38,21 @@ void ldr_task(void *pvParameters)
 	/* The char buffer which holds the conversion value from the made measurement. */
 	char lux[32];
 	
+	uint16_t adc_data;
+	adc_config_t adc_config;
+	adc_config.mode = ADC_READ_TOUT_MODE;
+	adc_config.clk_div = 10;
+	adc_init(&adc_config);
+	
 	while (1)
 	{
+		if (ESP_OK == adc_read(&adc_data))
+		{
+			ESP_LOGI(TAG, "ADC read: %d\r\n", adc_data);
+		}
+		
 		/* Get random value */
-		data->lux = esp_random();
+		data->lux = adc_data;
 		
 		/* Put the measurements in a readable JSON formatted string. */
 		sprintf(message, JSON_TEMPLATE, "lux", gcvt(data->lux, 4, lux));
