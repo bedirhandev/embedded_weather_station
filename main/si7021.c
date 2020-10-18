@@ -9,9 +9,12 @@
 #include "nvs_flash.h"
 
 #include "si7021.h"
-#include "shared.h"
 
-static const char* TAG = "si7021";
+static const char* JSON_TEMPLATE = "{\"type\":\"%s\",\"value\":\"%s\"}";
+
+//static const char* TAG = "si7021";
+
+typedef struct { float humidity, temperature; } data;
 
 /**
 * TEST CODE BRIEF
@@ -64,12 +67,10 @@ static const char* TAG = "si7021";
 #define I2C_TIMEOUT 998
 #define BAD_CRC 999
 
-struct sensor_data data;
-
 /**
 * @brief i2c master initialization
 */
-esp_err_t i2c_master_init()
+static esp_err_t i2c_master_init()
 {
 	int i2c_master_port = I2C_MASTER_NUM;
 	i2c_config_t conf;
@@ -79,20 +80,25 @@ esp_err_t i2c_master_init()
 	conf.scl_io_num = I2C_MASTER_SCL_IO;
 	conf.scl_pullup_en = 1;
 	conf.clk_stretch_tick = 300000000;  // 300 ticks, Clock stretch is about 210us, you can make changes according to the actual situation.
-	ESP_ERROR_CHECK(i2c_driver_install(i2c_master_port, conf.mode));
-	ESP_ERROR_CHECK(i2c_param_config(i2c_master_port, &conf));
+	i2c_driver_install(i2c_master_port, conf.mode);
+	i2c_param_config(i2c_master_port, &conf);
+	
 	return ESP_OK;
 }
 
 /**
 * @brief i2c master measure and reading relative humidity
 */
-esp_err_t i2c_master_measure_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
+static esp_err_t i2c_master_measure_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
 {
 	int ret;
 	
+	// create the link with i2c
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();	
+	// start communication
 	i2c_master_start(cmd);
+	
+	//send bytes to read from sensor
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | WRITE_BIT, ACK_CHECK_ENABLE);
 	i2c_master_write_byte(cmd, HUMD_MEASURE_HOLD, ACK_CHECK_ENABLE);
 	
@@ -114,11 +120,15 @@ esp_err_t i2c_master_measure_relative_humidity(i2c_port_t i2c_num, uint8_t* data
 /*
  * @brief sequence to read temperature value from previous RH measurement 
  */
-esp_err_t i2c_master_read_temperature_from_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
+static esp_err_t i2c_master_read_temperature_from_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
 {
 	int ret;
 
+	// create the link with i2c
+	// start communication
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();	
+	
+	//send bytes to read from register
 	i2c_master_start(cmd);
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | WRITE_BIT, ACK_CHECK_ENABLE);
 	i2c_master_write_byte(cmd, TEMP_PREV, ACK_CHECK_ENABLE);
@@ -130,47 +140,72 @@ esp_err_t i2c_master_read_temperature_from_relative_humidity(i2c_port_t i2c_num,
 	i2c_master_read_byte(cmd, &data[0], I2C_MASTER_ACK);
 	i2c_master_read_byte(cmd, &data[1], I2C_MASTER_LAST_NACK);
 	i2c_master_stop(cmd);
+	// start sending
 	ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
 	i2c_cmd_link_delete(cmd);
 	
 	return ret;
 }
 
-float get_relative_humidity()
+// measure the relative humidity
+static float get_relative_humidity()
 {
 	uint8_t data[2];
 	
-	ESP_ERROR_CHECK(i2c_master_measure_relative_humidity(I2C_MASTER_NUM, data));
+	i2c_master_measure_relative_humidity(I2C_MASTER_NUM, data);
 	
+	// convert the results to actual humidity in percentage
 	float RH_Code = ((data[0] * 256.0) + data[1]);
 	float RH = ((125 * RH_Code) / 65536.0) - 6;
 	
 	return RH;
 }
 
-float get_temp_from_prev_hr_measurement()
+// read temperature from previous humidity measurement
+// it is not a new measurement
+static float get_temp_from_prev_hr_measurement()
 {
 	uint8_t data[2];
 	
-	ESP_ERROR_CHECK(i2c_master_read_temperature_from_relative_humidity(I2C_MASTER_NUM, data));
+	i2c_master_read_temperature_from_relative_humidity(I2C_MASTER_NUM, data);
 	
+	// convert the results to actual temperature in celcius degrees
 	float temp_Code  = ((data[0] * 256.0) + data[1]);
 	float temperature_celcius = ((175.72 * temp_Code) / 65536.0) - 46.85;
 	
 	return temperature_celcius;
 }
 
-void i2c_task(void *arg)
+void i2c_task(void *pvParameters)
 {
+	//UBaseType_t uxHighWaterMark;
+	//uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+	//printf("[Start] High Water Mark si7021: %lu", uxHighWaterMark);
+
+	data *si7021 = (data *)malloc(sizeof(data));
+	char *message = (char *)malloc(128 * sizeof(char));
+	
 	i2c_master_init();
 	
-	while (1) 
+	while (1)
 	{
-		data.humidity = get_relative_humidity();
-		ESP_LOGI(TAG, "Relative humidity: %.2f%%", data.humidity);
+		// read humidity
+		si7021->humidity = get_relative_humidity();
 		
-		data.temperature = get_temp_from_prev_hr_measurement();
-		ESP_LOGI(TAG, "Temperature: %.2f degrees celcius\n", data.temperature);
+		// read temperature
+		si7021->temperature = get_temp_from_prev_hr_measurement();
+		
+		char humidity[32], temperature[32];
+		
+		int length = 0;
+		length += sprintf(message + length, JSON_TEMPLATE, "humidity", gcvt(si7021->humidity, 4, humidity));
+		length += sprintf(message + length, ",");
+		length += sprintf(message + length, JSON_TEMPLATE, "temperature", gcvt(si7021->temperature, 4, temperature));
+		
+		xQueueSend((QueueHandle_t *)pvParameters, &message, portMAX_DELAY);
+
+		//uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+		//printf("[End] High Water Mark si7021: %lu", uxHighWaterMark);
 		
 		// delay for 1 minute
 		vTaskDelay((1 * 1000 * 60) / portTICK_RATE_MS);
