@@ -1,74 +1,74 @@
+/*! 
+ * \file si7021.c
+ * \brief This file reads the temperature and humidity of the SI7021 sensor.
+ * \author Bedirhan Dincer
+ *	
+ * \par Datasheet:
+ * The datasheet for the sensor is available at https://www.silabs.com/documents/public/data-sheets/Si7021-A20.pdf last checked on: 16-09-2020
+ * 
+ * \par Pin assignment:
+ * -# GPIO4 is assigned as a data signal of i2c master port.
+ * -# GPIO5 is assigned as a clock signal of i2c master port.
+ * 
+ * \par Connection:
+ * -# Connect sda/scl of sensor with GPIO4/GPIO5.
+ * -# No need to add external pull-up resistors, driver will enable internal pull-up resistors.
+ * 
+ * \par Test cases:
+ * -# Measuring relative humidity.
+ * -# Reading temperature from previous measurement.
+*/
+#include "si7021.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
+
 #include "esp_log.h"
 #include "esp_system.h"
 #include "nvs_flash.h"
 
-#include "si7021.h"
-
+/** A reusable JSON template to send a JSON message onto the queue. */
 static const char* JSON_TEMPLATE = "{\"type\":\"%s\",\"value\":\"%s\"}";
 
-//static const char* TAG = "si7021";
-
+/** The structure that will hold the data of the made measurements. */
 typedef struct { float humidity, temperature; } data;
 
-/**
-* TEST CODE BRIEF
-* This project will indicate how to measure the relative humidity and read the temperature from the previous measurement on the si7021 sensor.
-* The microcontroller that is been used is the Adafruit Huzzah esp8266.
-* A manual for this microcontroller can be found on: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-feather-huzzah-esp8266.pdf last checked on: 16-09-2020
-* A datasheet for the sensor could be found on: https://www.silabs.com/documents/public/data-sheets/Si7021-A20.pdf last checked on: 16-09-2020
-* 
-* Pin assignment:
-* 
-* - master:
-*	GPIO4 is assigned as the data signal of i2c master port.
-*	GPIO5 is assigned as the clock signal of i2c master port.
-* 
-* Connection:
-* - connect sda/scl of sensor with GPIO4/GPIO5.
-* - no need to add external pull-up resistors, driver will enable internal pull-up resistors.
-* 
-* Test items:
-* - measure relative humidity.
-* - read temperature from measurement
-*/
+#define I2C_MASTER_SCL_IO 5 /*!< GPIO5 is the I2C master clock line */
+#define I2C_MASTER_SDA_IO 4 /*!< GPIO4 for i2c data line */
+#define I2C_MASTER_NUM I2C_NUM_0 /*!< I2C port number for master dev */
+#define I2C_MASTER_TX_BUF_DISABLE 0 /*!< I2C master do not need buffer */
+#define I2C_MASTER_RX_BUF_DISABLE 0 /*!< I2C master do not need buffer */
 
-#define I2C_MASTER_SCL_IO 5 /* <! gpio number for I2C master clock */
-#define I2C_MASTER_SDA_IO 4 /* <! gpio number for I2C master data */
-#define I2C_MASTER_NUM I2C_NUM_0 /* <! I2C port number for master dev */
-#define I2C_MASTER_TX_BUF_DISABLE 0 /* <! I2C master do not need buffer */
-#define I2C_MASTER_RX_BUF_DISABLE 0 /* <! I2C master do not need buffer */
-
-#define WRITE_BIT I2C_MASTER_WRITE /* <! I2C master write */
-#define READ_BIT I2C_MASTER_READ /* <! I2C master read */
-#define ACK_CHECK_ENABLE 0x1 /* <! I2C master will check ack from slave */
-#define ACK_CHECK_DISABLE 0x0 /* <! I2C master will not check ack from slave */
-#define ACK_VAL 0x0 /* <! I2C ack value */
-#define NACK_VAL 0x1 /* <! I2C nack value */
-#define LAST_NACK_VAL 0x2 /* <! I2C last_nack value */
+#define WRITE_BIT I2C_MASTER_WRITE /*!< I2C master write bit */
+#define READ_BIT I2C_MASTER_READ /*!< I2C master read bit */
+#define ACK_CHECK_ENABLE 0x1 /*!< I2C master will check ack from slave */
+#define ACK_CHECK_DISABLE 0x0 /*!< I2C master will not check ack from slave */
+#define ACK_VAL 0x0 /*!< I2C ack value */
+#define NACK_VAL 0x1 /*!< I2C nack value */
+#define LAST_NACK_VAL 0x2 /*!< I2C last_nack value */
  
-/**
-* @brief Si7021 register address definitions: 
+/*!
+* \brief SI7021 register address definitions.
 */
-#define SI7021_SENSOR_ADDRESS 0x40
+#define SI7021_SENSOR_ADDRESS 0x40 /*!< Master address */
+#define TEMP_MEASURE_HOLD 0xE3 /*!< Measure temperature address */
+#define HUMD_MEASURE_HOLD 0xE5 /*!< Measure relative humidity address */
+#define TEMP_PREV 0xE0 /*!< Measure from previous measurement address */
 
-#define TEMP_MEASURE_HOLD 0xE3
-#define HUMD_MEASURE_HOLD 0xE5
-#define TEMP_MEASURE_NOHOLD 0xF3
-#define HUMD_MEASURE_NOHOLD 0xF5
-#define TEMP_PREV 0xE0
-
-// Error codes
+/*!
+ * \brief I2C error codes.
+*/
 #define I2C_TIMEOUT 998
 #define BAD_CRC 999
 
-/**
-* @brief i2c master initialization
+/*!
+ * \brief I2C master initialization/configuation settings.
+ * \return The initialization has been succesfully made.
 */
 static esp_err_t i2c_master_init()
 {
@@ -79,137 +79,184 @@ static esp_err_t i2c_master_init()
 	conf.sda_pullup_en = 1;
 	conf.scl_io_num = I2C_MASTER_SCL_IO;
 	conf.scl_pullup_en = 1;
-	conf.clk_stretch_tick = 300000000;  // 300 ticks, Clock stretch is about 210us, you can make changes according to the actual situation.
+	conf.clk_stretch_tick = 300000000;
 	i2c_driver_install(i2c_master_port, conf.mode);
 	i2c_param_config(i2c_master_port, &conf);
 	
 	return ESP_OK;
 }
 
-/**
-* @brief i2c master measure and reading relative humidity
+/*!
+ * \brief I2C master measure and reading relative humidity.
+ * \param i2c_num i2c port number.
+ * \param data buffer contains the relative humidity value.
+ * \return The operation was succesfull or failure
 */
 static esp_err_t i2c_master_measure_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
 {
 	int ret;
 	
-	// create the link with i2c
+	/* Create the link with I2C link. */
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();	
-	// start communication
+	/* Setting the start bit in the I2C link. */
 	i2c_master_start(cmd);
 	
-	//send bytes to read from sensor
+	/* Setting the write byte in the I2C link. */
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | WRITE_BIT, ACK_CHECK_ENABLE);
 	i2c_master_write_byte(cmd, HUMD_MEASURE_HOLD, ACK_CHECK_ENABLE);
 	
+	/* Setting the start and stop bit in the I2C link.
+	 *  To switch over to the reading part of the sensor.
+	 */
 	i2c_master_stop(cmd);
 	i2c_master_start(cmd);
 	
+	/* Setting the write byte for reading in I2C link. */
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | READ_BIT, ACK_CHECK_ENABLE);
-	// master clock stretch
+	/* Little master clock stretch in I2C link. 
+	 *  Makes sure to give it some time to set the measurement ready to perform a read operation. 
+	 */
 	vTaskDelay(50 / portTICK_PERIOD_MS);
+	
+	/* Setting the read byte for reading the I2C link.
+	 *  Put the readed data into the buffer. 
+	 */
 	i2c_master_read_byte(cmd, &data[0], I2C_MASTER_ACK);
 	i2c_master_read_byte(cmd, &data[1], I2C_MASTER_LAST_NACK);
+	
+	/* Setting the stop bit to tell the I2C link that the job is done. */
 	i2c_master_stop(cmd);
+	
+	/* Start sending and wait for return value. */
 	ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+	
+	/* Closing the I2C link. */
 	i2c_cmd_link_delete(cmd);
 	
+	/* Returns whether operation was succesful or failure */
 	return ret;
 }
 
-/*
- * @brief sequence to read temperature value from previous RH measurement 
- */
+/*!
+ * \brief Sequence to read temperature value from previous RH measurement
+ * \param i2c_num i2c port number.
+ * \param data buffer contains the temperature value.
+ * \return The operation was succesfull or failure
+*/
 static esp_err_t i2c_master_read_temperature_from_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
 {
 	int ret;
 
-	// create the link with i2c
-	// start communication
+	/* Create the link with I2C link. */
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();	
 	
-	//send bytes to read from register
+	/* Setting the start bit in the I2C link. */
 	i2c_master_start(cmd);
+	
+	/* Setting the write byte in the I2C link. */
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | WRITE_BIT, ACK_CHECK_ENABLE);
 	i2c_master_write_byte(cmd, TEMP_PREV, ACK_CHECK_ENABLE);
 	
+	/* Setting the start and stop bit in the I2C link.
+	 *  To switch over to the reading part of the sensor.
+	 */
 	i2c_master_stop(cmd);
 	i2c_master_start(cmd);
 	
+	/* Setting the write byte for reading in I2C link. */
 	i2c_master_write_byte(cmd, SI7021_SENSOR_ADDRESS << 1 | READ_BIT, ACK_CHECK_ENABLE);
+	
+	/* Setting the read byte for reading the I2C link.
+	 *  Put the readed data into the buffer. 
+	 */
 	i2c_master_read_byte(cmd, &data[0], I2C_MASTER_ACK);
 	i2c_master_read_byte(cmd, &data[1], I2C_MASTER_LAST_NACK);
+	
+	/* Setting the stop bit to tell the I2C link that the job is done. */
 	i2c_master_stop(cmd);
-	// start sending
+	
+	/* Start sending and wait for return value. */
 	ret = i2c_master_cmd_begin(i2c_num, cmd, 1000 / portTICK_RATE_MS);
+	
+	/* Closing the I2C link. */
 	i2c_cmd_link_delete(cmd);
 	
 	return ret;
 }
 
-// measure the relative humidity
+/*!
+ * \brief Measures the relative humidity.
+ * \return The measured relative humdity in percentage
+*/
 static float get_relative_humidity()
 {
 	uint8_t data[2];
 	
 	i2c_master_measure_relative_humidity(I2C_MASTER_NUM, data);
 	
-	// convert the results to actual humidity in percentage
+	/* Decrypts the data from the made measurement */
 	float RH_Code = ((data[0] * 256.0) + data[1]);
 	float RH = ((125 * RH_Code) / 65536.0) - 6;
 	
 	return RH;
 }
 
-// read temperature from previous humidity measurement
-// it is not a new measurement
+/*!
+ * \brief Reads temperature from previous humidity measurement.
+ * \return The measured temperature in celcius degrees
+ * \note This is however not a new measurement. It gets the value from the registers.
+*/
 static float get_temp_from_prev_hr_measurement()
 {
 	uint8_t data[2];
 	
 	i2c_master_read_temperature_from_relative_humidity(I2C_MASTER_NUM, data);
 	
-	// convert the results to actual temperature in celcius degrees
+	/* Convert the results to actual temperature in celcius degrees. */
 	float temp_Code  = ((data[0] * 256.0) + data[1]);
 	float temperature_celcius = ((175.72 * temp_Code) / 65536.0) - 46.85;
 	
 	return temperature_celcius;
 }
 
+/*!
+ * \brief A FreeRTOS task for measuring temperature and humidity using I2C.
+ */
 void i2c_task(void *pvParameters)
 {
-	//UBaseType_t uxHighWaterMark;
-	//uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-	//printf("[Start] High Water Mark si7021: %lu", uxHighWaterMark);
-
+	/* si7021 will hold the data from the made measurements. */
 	data *si7021 = (data *)malloc(sizeof(data));
+	
+	/* Message buffer that will hold the measurement and send it to the queue. */
 	char *message = (char *)malloc(128 * sizeof(char));
 	
+	/* Start initializing I2C. */
 	i2c_master_init();
 	
 	while (1)
 	{
-		// read humidity
+		/* Get relative humdity. */
 		si7021->humidity = get_relative_humidity();
 		
-		// read temperature
+		/* Get temperature from the humidity measurement. */
 		si7021->temperature = get_temp_from_prev_hr_measurement();
 		
+		/* These char buffers will hold the conversion value. */
 		char humidity[32], temperature[32];
 		
+		/* Put the measurements in a readable JSON formatted string. */
 		int length = 0;
 		length += sprintf(message + length, JSON_TEMPLATE, "humidity", gcvt(si7021->humidity, 4, humidity));
 		length += sprintf(message + length, ",");
 		length += sprintf(message + length, JSON_TEMPLATE, "temperature", gcvt(si7021->temperature, 4, temperature));
 		
+		/* Put the JSON formatted string onto the queue. */
 		xQueueSend((QueueHandle_t *)pvParameters, &message, portMAX_DELAY);
-
-		//uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-		//printf("[End] High Water Mark si7021: %lu", uxHighWaterMark);
 		
-		// delay for 1 minute
+		/* Delay task for 1 minute. */
 		vTaskDelay((1 * 1000 * 60) / portTICK_RATE_MS);
 	}
 	
+	/* Close the driver. No longer needed. */
 	i2c_driver_delete(I2C_MASTER_NUM);
 }

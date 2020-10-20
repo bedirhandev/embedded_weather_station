@@ -9,13 +9,14 @@
 
 #include "nvs_flash.h"
 #include <netdb.h>
-#include <sys/socket.h> // It is not particularly necessary because netdb includes socket.h
 
 #include "sender.h"
 #include "freertos/queue.h"
 
-#define EXAMPLE_WIFI_SSID CONFIG_WIFI_SSID
-#define EXAMPLE_WIFI_PASS CONFIG_WIFI_PASSWORD
+#include "esp_sleep.h"
+
+#define WIFI_SSID CONFIG_WIFI_SSID
+#define WIFI_PASS CONFIG_WIFI_PASSWORD
 
 #define WEB_SERVER "europe-west1-tactical-crow-272620.cloudfunctions.net"
 #define WEB_PORT 80
@@ -24,6 +25,8 @@
 #define SA struct sockaddr
 #define MAX_SUB 1024
 #define MAX_LINE MAX_SUB - 1
+#define MAX_SEND 2
+#define SLEEP_DURATION 60
 
 static const char* JSON_HEAD = "{\"measurements\":[";
 static const char* JSON_TAIL = "]}";
@@ -83,8 +86,8 @@ void initialise_wifi(void)
 	// wifi configuration station mode or ap mode
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = EXAMPLE_WIFI_SSID,
-            .password = EXAMPLE_WIFI_PASS,
+            .ssid = WIFI_SSID,
+            .password = WIFI_PASS,
         },
     };
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
@@ -98,40 +101,39 @@ void initialise_wifi(void)
 
 void http_post_task(void *pvParameters)
 {
-	//UBaseType_t uxHighWaterMark;
-	//uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
-	//printf("[Start] High Water Mark sender: %lu", uxHighWaterMark);
-	
 	mutexBus = xSemaphoreCreateMutex();
-
+	
 	char* message[128];
-
-	//unsigned int q_size;
 	
 	// Family iPv4, SOCK_STREAM for TCP (connection-based protocol) connection SOCK_DGRAM for UDP.
 	const struct addrinfo hints = {
 		.ai_family = AF_INET,
 		.ai_socktype = SOCK_STREAM,
 	};
+	
 	struct addrinfo* res;
-	//struct in_addr* addr;
 	int s, r;
 	char recv_buf[64];
 	
+	EventBits_t uxBits;
+	
+	unsigned messages_send = 0;
+	
     while(1) {
-		//q_size = uxQueueMessagesWaiting((QueueHandle_t *)pvParameters);
-
 	    if (xQueueReceive((QueueHandle_t *)pvParameters, &message, portMAX_DELAY))
 	    {  
 		    if (xSemaphoreTake(mutexBus, portMAX_DELAY))
 		    {
 				// Wait for the callback to set the CONNECTED_BIT in the event group.
-				xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
+				uxBits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
 		    
+			    if (!uxBits) 
+			    {
+				    initialise_wifi();
+			    }
+			    
 				getaddrinfo(WEB_SERVER, "80", &hints, &res);
-
-				//addr = &((struct sockaddr_in*)res->ai_addr)->sin_addr;
-		    
+			    
 				s = socket(res->ai_family, res->ai_socktype, 0);
 		    
 				connect(s, res->ai_addr, res->ai_addrlen);
@@ -180,8 +182,12 @@ void http_post_task(void *pvParameters)
 				close(s);
 			}
 		    
-		    //uxHighWaterMark = uxTaskGetStackHighWaterMark(NULL);
-		    //printf("[End] High Water Mark sender: %lu", uxHighWaterMark);
+		    messages_send++;
+		    
+		    if (messages_send == MAX_SEND)
+		    {
+			    //esp_deep_sleep(1000000UL * SLEEP_DURATION);
+		    }
 			    
 			xSemaphoreGive(mutexBus);
 	    }

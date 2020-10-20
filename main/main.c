@@ -5,23 +5,21 @@
 #include "nvs_flash.h"
 #include "esp_log.h"
 
+/** Create the queue for sending and receiving message between FreeRTOS tasks */
 static xQueueHandle queue;
 
+/*!
+ * \brief The main entry point for creating the queue and the tasks.
+ */
 void app_main(void)
 {
+	/* Creating a queue that can hold two char pointers. */
 	queue = xQueueCreate(2, sizeof(char*));
-
-//	esp_err_t ret = nvs_flash_init();
-//	if (ret == ESP_ERR_NVS_NO_FREE_PAGES) {
-//		ESP_ERROR_CHECK(nvs_flash_erase());
-//		ret = nvs_flash_init();
-//	}
-//	ESP_ERROR_CHECK(ret);
 	
-	initialise_wifi();
-
-	// in total around 9KB space occupied
+	/* Creating a tasks which is responsible for measuring lux. */
 	xTaskCreate(ldr_task, "ldr_task", 1024 * 1, (void*) queue, tskIDLE_PRIORITY + 2, NULL);
+	/* Creating a tasks which is responsible for measuring temperature and humdidity. */
 	xTaskCreate(i2c_task, "i2c_task", 1024 * 2, (void*) queue, tskIDLE_PRIORITY + 2, NULL);
+	/* Creating a tasks which is responsible for sending the measurements to the server. */
 	xTaskCreate(http_post_task, "http_post_task", 1024 * 3, (void*) queue, tskIDLE_PRIORITY + 1, NULL);
 }
