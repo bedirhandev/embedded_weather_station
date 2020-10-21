@@ -27,7 +27,7 @@
 #define WIFI_PASS CONFIG_WIFI_PASSWORD /*!< Password of Wi-Fi AP. */
 
 #define WEB_SERVER "europe-west1-tactical-crow-272620.cloudfunctions.net" /*!< The root server. */
-#define WEB_PORT 80 /*!< Port number for TCP connection. */
+#define WEB_PORT "80" /*!< Port number for TCP connection. */
 #define WEB_URL "http://europe-west1-tactical-crow-272620.cloudfunctions.net/measurement" /*!< HTTP API endpoint */
 
 #define SA struct sockaddr /*!< Structure for socket connection. */
@@ -140,7 +140,7 @@ void http_post_task(void *pvParameters)
 	int sockfd, recv;
 	char recv_buf[64];
 	
-	EventBits_t ux_bits;
+	EventBits_t ux_bits = 0;
 	
 	unsigned messages_send = 0;
 	
@@ -151,27 +151,27 @@ void http_post_task(void *pvParameters)
 			/* A mutex is placed on the current process to make sure that no unexpected behaviour occurs. */
 			if (xSemaphoreTake(mutex_bus, portMAX_DELAY))
 			{
-				/* Wait for the callback to set the CONNECTED_BIT in the event group. */
-				ux_bits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
-		    
-				/* If the uc is not yet connected to a AP then try to connect. */
-				if (ux_bits == 0) 
+				/* If there is no connection made with an AP. Then try to connect. */
+				if (ux_bits != CONNECTED_BIT) 
 				{
 					initialise_wifi();
 				}
-			    
+				
+				/* Wait for the callback to set the CONNECTED_BIT in the event group. */
+				ux_bits = xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
+				
 				/* Do a DNS-lookup and store it's information into the var res. */
 				if ((getaddrinfo(WEB_SERVER, WEB_PORT, &hints, &res)) != 0 || res == NULL)
 				{
 					/* The error code is obtained from errno. */
-					perror(errno);
+					//perror(errno);
 				}
 			    
 				/* Socket allocated. */
 				if ((sockfd = socket(res->ai_family, res->ai_socktype, 0)) < 0)
 				{
 					/* The error code is obtained from errno. */
-					perror(errno);
+					//perror(errno);
 					freeaddrinfo(res);
 				}
 		    
@@ -179,7 +179,7 @@ void http_post_task(void *pvParameters)
 				if ((connect(sockfd, res->ai_addr, res->ai_addrlen)) != 0)
 				{
 					/* The error code is obtained from errno. */
-					perror(errno);
+					//perror(errno);
 					freeaddrinfo(res);
 				}
 		    
@@ -215,7 +215,7 @@ void http_post_task(void *pvParameters)
 				if (write(sockfd, sendline, strlen(sendline)) < 0)
 				{
 					/* The error code is obtained from errno. */
-					perror(errno);
+					//perror(errno);
 				}
 					
 				/* Read HTTP response.
@@ -237,17 +237,18 @@ void http_post_task(void *pvParameters)
 					shutdown(sockfd, 0);
 					close(sockfd);
 				}
-			}
 		    
-			/* Increment sended messages and check if it hits the max amount of requests. */
-			if ((++messages_send) == MAX_REQUESTS)
-			{
-				/* Put the uc into deep sleep mode. */
-				//esp_deep_sleep(1000000UL * SLEEP_DURATION);
-			}
+				/* Increment sended messages and check if it hits the max amount of requests. */
+				if ((++messages_send) == MAX_REQUESTS)
+				{
+					ESP_LOGI(TAG, "Deep sleep mode for 60 seconds.\n");
+					/* Put the uc into deep sleep mode. */
+					//esp_deep_sleep(1000000UL * SLEEP_DURATION);
+				}
 			    
-			/* Free the mutex bus. */
-			xSemaphoreGive(mutex_bus);
+				/* Free the mutex bus. */
+				xSemaphoreGive(mutex_bus);
+			}
 		}
 	}
 }
