@@ -1,6 +1,6 @@
 /*! 
  * \file si7021.c
- * \brief This file reads the temperature and humidity of the SI7021 sensor.
+ * \brief Reads the temperature and humidity of the SI7021 sensor
  * \author Bedirhan Dincer
  *	
  * \par Datasheet:
@@ -90,7 +90,7 @@ static esp_err_t i2c_master_init()
  * \brief I2C master measure and reading relative humidity.
  * \param i2c_num i2c port number.
  * \param data buffer contains the relative humidity value.
- * \return The operation was succesfull or failure
+ * \return The operation was succesfull or failure.
 */
 static esp_err_t i2c_master_measure_relative_humidity(i2c_port_t i2c_num, uint8_t* data)
 {
@@ -221,6 +221,7 @@ static float get_temp_from_prev_hr_measurement()
 
 /*!
  * \brief A FreeRTOS task for measuring temperature and humidity using I2C.
+ * \param pvParameters contains a reference to the queue.
  */
 void i2c_task(void *pvParameters)
 {

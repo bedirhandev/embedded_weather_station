@@ -1,0 +1,402 @@
+\hypertarget{si7021_8c}{}\doxysection{main/si7021.c File Reference}
+\label{si7021_8c}\index{main/si7021.c@{main/si7021.c}}
+
+
+Reads the temperature and humidity of the S\+I7021 sensor.  
+
+
+{\ttfamily \#include \char`\"{}si7021.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}freertos/\+Free\+R\+T\+O\+S.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}freertos/task.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}freertos/queue.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+log.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+system.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}nvs\+\_\+flash.\+h\char`\"{}}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structdata}{data}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{si7021_8c_a033b5e8a30541fe4ff939a62fdb7a43d}{I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+S\+C\+L\+\_\+\+IO}}~5
+\begin{DoxyCompactList}\small\item\em G\+P\+I\+O5 is the I2C master clock line. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_af47631d568bba17edf9d1ea042602bb6}{I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+S\+D\+A\+\_\+\+IO}}~4
+\begin{DoxyCompactList}\small\item\em G\+P\+I\+O4 for i2c data line. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_aab9e642b6200f95fcbd2ad7466aaa2d3}{I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+N\+UM}}~I2\+C\+\_\+\+N\+U\+M\+\_\+0
+\begin{DoxyCompactList}\small\item\em I2C port number for master dev. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_aaa0e84f340ef5ea9db2d7624fdadaa26}{I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+T\+X\+\_\+\+B\+U\+F\+\_\+\+D\+I\+S\+A\+B\+LE}}~0
+\begin{DoxyCompactList}\small\item\em I2C master do not need buffer. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a37a0707200e50e3b3e9ab28b1b8d6777}{I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+R\+X\+\_\+\+B\+U\+F\+\_\+\+D\+I\+S\+A\+B\+LE}}~0
+\begin{DoxyCompactList}\small\item\em I2C master do not need buffer. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a7fc57d5be9f588839a00c75ef2946e17}{W\+R\+I\+T\+E\+\_\+\+B\+IT}}~I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+W\+R\+I\+TE
+\begin{DoxyCompactList}\small\item\em I2C master write bit. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a2f493ed233e66342493f155ebda5c183}{R\+E\+A\+D\+\_\+\+B\+IT}}~I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+R\+E\+AD
+\begin{DoxyCompactList}\small\item\em I2C master read bit. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a440a9f34f614d4618acd1c6331da7cff}{A\+C\+K\+\_\+\+C\+H\+E\+C\+K\+\_\+\+E\+N\+A\+B\+LE}}~0x1
+\begin{DoxyCompactList}\small\item\em I2C master will check ack from slave. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a40ed881dc052d8ad32a9cc2a20fd8109}{A\+C\+K\+\_\+\+C\+H\+E\+C\+K\+\_\+\+D\+I\+S\+A\+B\+LE}}~0x0
+\begin{DoxyCompactList}\small\item\em I2C master will not check ack from slave. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a1d64a546dacc15052a6c4887f9d0020f}{A\+C\+K\+\_\+\+V\+AL}}~0x0
+\begin{DoxyCompactList}\small\item\em I2C ack value. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_ae20bf16f65c41237e2d620ef49890781}{N\+A\+C\+K\+\_\+\+V\+AL}}~0x1
+\begin{DoxyCompactList}\small\item\em I2C nack value. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a20bfabead2a5dc9c2de0710de5e286d6}{L\+A\+S\+T\+\_\+\+N\+A\+C\+K\+\_\+\+V\+AL}}~0x2
+\begin{DoxyCompactList}\small\item\em I2C last\+\_\+nack value. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a5b2c0ee9f528b38f96b5b6e8e9da13d0}{S\+I7021\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS}}~0x40
+\begin{DoxyCompactList}\small\item\em S\+I7021 register address definitions. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_aa1958e6d76aaeccf063159398e9fba32}{T\+E\+M\+P\+\_\+\+M\+E\+A\+S\+U\+R\+E\+\_\+\+H\+O\+LD}}~0x\+E3
+\begin{DoxyCompactList}\small\item\em Measure temperature address. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a07246d9438c90467db277779ecd74960}{H\+U\+M\+D\+\_\+\+M\+E\+A\+S\+U\+R\+E\+\_\+\+H\+O\+LD}}~0x\+E5
+\begin{DoxyCompactList}\small\item\em Measure relative humidity address. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a1939bc96cbb65ab247c83734ac06fb12}{T\+E\+M\+P\+\_\+\+P\+R\+EV}}~0x\+E0
+\begin{DoxyCompactList}\small\item\em Measure from previous measurement address. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_afa3215f0aa766367f5d34bee80929152}{I2\+C\+\_\+\+T\+I\+M\+E\+O\+UT}}~998
+\begin{DoxyCompactList}\small\item\em I2C error codes. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{si7021_8c_a4bae979c4e63b1feeca389e4bb5d22d3}{B\+A\+D\+\_\+\+C\+RC}}~999
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{si7021_8c_a3b13d74e81c904fcbf4f27c983aa966a}{i2c\+\_\+master\+\_\+init}} ()
+\begin{DoxyCompactList}\small\item\em I2C master initialization/configuation settings. \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{si7021_8c_a7b2b9f6f28583e8341baf87222781983}{i2c\+\_\+master\+\_\+measure\+\_\+relative\+\_\+humidity}} (i2c\+\_\+port\+\_\+t i2c\+\_\+num, uint8\+\_\+t $\ast$\mbox{\hyperlink{structdata}{data}})
+\begin{DoxyCompactList}\small\item\em I2C master measure and reading relative humidity. \end{DoxyCompactList}\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{si7021_8c_ad875ff237e6de772be59914d1a0f3cdc}{i2c\+\_\+master\+\_\+read\+\_\+temperature\+\_\+from\+\_\+relative\+\_\+humidity}} (i2c\+\_\+port\+\_\+t i2c\+\_\+num, uint8\+\_\+t $\ast$\mbox{\hyperlink{structdata}{data}})
+\begin{DoxyCompactList}\small\item\em Sequence to read temperature value from previous RH measurement. \end{DoxyCompactList}\item 
+static float \mbox{\hyperlink{si7021_8c_a5f6ade5f34c729fd63eeafa98b94ef1d}{get\+\_\+relative\+\_\+humidity}} ()
+\begin{DoxyCompactList}\small\item\em Measures the relative humidity. \end{DoxyCompactList}\item 
+static float \mbox{\hyperlink{si7021_8c_a63853aa7fc351b4d15665e044ecf92c2}{get\+\_\+temp\+\_\+from\+\_\+prev\+\_\+hr\+\_\+measurement}} ()
+\begin{DoxyCompactList}\small\item\em Reads temperature from previous humidity measurement. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{si7021_8c_aa590834b1e142cf3db49b08415849a6d}{i2c\+\_\+task}} (void $\ast$pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em A Free\+R\+T\+OS task for measuring temperature and humidity using I2C. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const char $\ast$ \mbox{\hyperlink{si7021_8c_acba5eb3851202f97a35b4bb3f9b641c0}{J\+S\+O\+N\+\_\+\+T\+E\+M\+P\+L\+A\+TE}} = \char`\"{}\{\textbackslash{}\char`\"{}type\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{},\textbackslash{}\char`\"{}value\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{}\}\char`\"{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Reads the temperature and humidity of the S\+I7021 sensor. 
+
+\begin{DoxyAuthor}{Author}
+Bedirhan Dincer
+\end{DoxyAuthor}
+\begin{DoxyParagraph}{Datasheet\+:}
+The datasheet for the sensor is available at \href{https://www.silabs.com/documents/public/data-sheets/Si7021-A20.pdf}{\texttt{ https\+://www.\+silabs.\+com/documents/public/data-\/sheets/\+Si7021-\/\+A20.\+pdf}} last checked on\+: 16-\/09-\/2020
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Pin assignment\+:}
+
+\begin{DoxyEnumerate}
+\item G\+P\+I\+O4 is assigned as a data signal of i2c master port.
+\item G\+P\+I\+O5 is assigned as a clock signal of i2c master port.
+\end{DoxyEnumerate}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Connection\+:}
+
+\begin{DoxyEnumerate}
+\item Connect sda/scl of sensor with G\+P\+I\+O4/\+G\+P\+I\+O5.
+\item No need to add external pull-\/up resistors, driver will enable internal pull-\/up resistors.
+\end{DoxyEnumerate}
+\end{DoxyParagraph}
+\begin{DoxyParagraph}{Test cases\+:}
+
+\begin{DoxyEnumerate}
+\item Measuring relative humidity.
+\item Reading temperature from previous measurement. 
+\end{DoxyEnumerate}
+\end{DoxyParagraph}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{si7021_8c_a40ed881dc052d8ad32a9cc2a20fd8109}\label{si7021_8c_a40ed881dc052d8ad32a9cc2a20fd8109}} 
+\index{si7021.c@{si7021.c}!ACK\_CHECK\_DISABLE@{ACK\_CHECK\_DISABLE}}
+\index{ACK\_CHECK\_DISABLE@{ACK\_CHECK\_DISABLE}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{ACK\_CHECK\_DISABLE}{ACK\_CHECK\_DISABLE}}
+{\footnotesize\ttfamily \#define A\+C\+K\+\_\+\+C\+H\+E\+C\+K\+\_\+\+D\+I\+S\+A\+B\+LE~0x0}
+
+
+
+I2C master will not check ack from slave. 
+
+\mbox{\Hypertarget{si7021_8c_a440a9f34f614d4618acd1c6331da7cff}\label{si7021_8c_a440a9f34f614d4618acd1c6331da7cff}} 
+\index{si7021.c@{si7021.c}!ACK\_CHECK\_ENABLE@{ACK\_CHECK\_ENABLE}}
+\index{ACK\_CHECK\_ENABLE@{ACK\_CHECK\_ENABLE}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{ACK\_CHECK\_ENABLE}{ACK\_CHECK\_ENABLE}}
+{\footnotesize\ttfamily \#define A\+C\+K\+\_\+\+C\+H\+E\+C\+K\+\_\+\+E\+N\+A\+B\+LE~0x1}
+
+
+
+I2C master will check ack from slave. 
+
+\mbox{\Hypertarget{si7021_8c_a1d64a546dacc15052a6c4887f9d0020f}\label{si7021_8c_a1d64a546dacc15052a6c4887f9d0020f}} 
+\index{si7021.c@{si7021.c}!ACK\_VAL@{ACK\_VAL}}
+\index{ACK\_VAL@{ACK\_VAL}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{ACK\_VAL}{ACK\_VAL}}
+{\footnotesize\ttfamily \#define A\+C\+K\+\_\+\+V\+AL~0x0}
+
+
+
+I2C ack value. 
+
+\mbox{\Hypertarget{si7021_8c_a4bae979c4e63b1feeca389e4bb5d22d3}\label{si7021_8c_a4bae979c4e63b1feeca389e4bb5d22d3}} 
+\index{si7021.c@{si7021.c}!BAD\_CRC@{BAD\_CRC}}
+\index{BAD\_CRC@{BAD\_CRC}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{BAD\_CRC}{BAD\_CRC}}
+{\footnotesize\ttfamily \#define B\+A\+D\+\_\+\+C\+RC~999}
+
+\mbox{\Hypertarget{si7021_8c_a07246d9438c90467db277779ecd74960}\label{si7021_8c_a07246d9438c90467db277779ecd74960}} 
+\index{si7021.c@{si7021.c}!HUMD\_MEASURE\_HOLD@{HUMD\_MEASURE\_HOLD}}
+\index{HUMD\_MEASURE\_HOLD@{HUMD\_MEASURE\_HOLD}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{HUMD\_MEASURE\_HOLD}{HUMD\_MEASURE\_HOLD}}
+{\footnotesize\ttfamily \#define H\+U\+M\+D\+\_\+\+M\+E\+A\+S\+U\+R\+E\+\_\+\+H\+O\+LD~0x\+E5}
+
+
+
+Measure relative humidity address. 
+
+\mbox{\Hypertarget{si7021_8c_aab9e642b6200f95fcbd2ad7466aaa2d3}\label{si7021_8c_aab9e642b6200f95fcbd2ad7466aaa2d3}} 
+\index{si7021.c@{si7021.c}!I2C\_MASTER\_NUM@{I2C\_MASTER\_NUM}}
+\index{I2C\_MASTER\_NUM@{I2C\_MASTER\_NUM}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_NUM}{I2C\_MASTER\_NUM}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+N\+UM~I2\+C\+\_\+\+N\+U\+M\+\_\+0}
+
+
+
+I2C port number for master dev. 
+
+\mbox{\Hypertarget{si7021_8c_a37a0707200e50e3b3e9ab28b1b8d6777}\label{si7021_8c_a37a0707200e50e3b3e9ab28b1b8d6777}} 
+\index{si7021.c@{si7021.c}!I2C\_MASTER\_RX\_BUF\_DISABLE@{I2C\_MASTER\_RX\_BUF\_DISABLE}}
+\index{I2C\_MASTER\_RX\_BUF\_DISABLE@{I2C\_MASTER\_RX\_BUF\_DISABLE}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_RX\_BUF\_DISABLE}{I2C\_MASTER\_RX\_BUF\_DISABLE}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+R\+X\+\_\+\+B\+U\+F\+\_\+\+D\+I\+S\+A\+B\+LE~0}
+
+
+
+I2C master do not need buffer. 
+
+\mbox{\Hypertarget{si7021_8c_a033b5e8a30541fe4ff939a62fdb7a43d}\label{si7021_8c_a033b5e8a30541fe4ff939a62fdb7a43d}} 
+\index{si7021.c@{si7021.c}!I2C\_MASTER\_SCL\_IO@{I2C\_MASTER\_SCL\_IO}}
+\index{I2C\_MASTER\_SCL\_IO@{I2C\_MASTER\_SCL\_IO}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_SCL\_IO}{I2C\_MASTER\_SCL\_IO}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+S\+C\+L\+\_\+\+IO~5}
+
+
+
+G\+P\+I\+O5 is the I2C master clock line. 
+
+\mbox{\Hypertarget{si7021_8c_af47631d568bba17edf9d1ea042602bb6}\label{si7021_8c_af47631d568bba17edf9d1ea042602bb6}} 
+\index{si7021.c@{si7021.c}!I2C\_MASTER\_SDA\_IO@{I2C\_MASTER\_SDA\_IO}}
+\index{I2C\_MASTER\_SDA\_IO@{I2C\_MASTER\_SDA\_IO}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_SDA\_IO}{I2C\_MASTER\_SDA\_IO}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+S\+D\+A\+\_\+\+IO~4}
+
+
+
+G\+P\+I\+O4 for i2c data line. 
+
+\mbox{\Hypertarget{si7021_8c_aaa0e84f340ef5ea9db2d7624fdadaa26}\label{si7021_8c_aaa0e84f340ef5ea9db2d7624fdadaa26}} 
+\index{si7021.c@{si7021.c}!I2C\_MASTER\_TX\_BUF\_DISABLE@{I2C\_MASTER\_TX\_BUF\_DISABLE}}
+\index{I2C\_MASTER\_TX\_BUF\_DISABLE@{I2C\_MASTER\_TX\_BUF\_DISABLE}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_TX\_BUF\_DISABLE}{I2C\_MASTER\_TX\_BUF\_DISABLE}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+T\+X\+\_\+\+B\+U\+F\+\_\+\+D\+I\+S\+A\+B\+LE~0}
+
+
+
+I2C master do not need buffer. 
+
+\mbox{\Hypertarget{si7021_8c_afa3215f0aa766367f5d34bee80929152}\label{si7021_8c_afa3215f0aa766367f5d34bee80929152}} 
+\index{si7021.c@{si7021.c}!I2C\_TIMEOUT@{I2C\_TIMEOUT}}
+\index{I2C\_TIMEOUT@{I2C\_TIMEOUT}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{I2C\_TIMEOUT}{I2C\_TIMEOUT}}
+{\footnotesize\ttfamily \#define I2\+C\+\_\+\+T\+I\+M\+E\+O\+UT~998}
+
+
+
+I2C error codes. 
+
+\mbox{\Hypertarget{si7021_8c_a20bfabead2a5dc9c2de0710de5e286d6}\label{si7021_8c_a20bfabead2a5dc9c2de0710de5e286d6}} 
+\index{si7021.c@{si7021.c}!LAST\_NACK\_VAL@{LAST\_NACK\_VAL}}
+\index{LAST\_NACK\_VAL@{LAST\_NACK\_VAL}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{LAST\_NACK\_VAL}{LAST\_NACK\_VAL}}
+{\footnotesize\ttfamily \#define L\+A\+S\+T\+\_\+\+N\+A\+C\+K\+\_\+\+V\+AL~0x2}
+
+
+
+I2C last\+\_\+nack value. 
+
+\mbox{\Hypertarget{si7021_8c_ae20bf16f65c41237e2d620ef49890781}\label{si7021_8c_ae20bf16f65c41237e2d620ef49890781}} 
+\index{si7021.c@{si7021.c}!NACK\_VAL@{NACK\_VAL}}
+\index{NACK\_VAL@{NACK\_VAL}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{NACK\_VAL}{NACK\_VAL}}
+{\footnotesize\ttfamily \#define N\+A\+C\+K\+\_\+\+V\+AL~0x1}
+
+
+
+I2C nack value. 
+
+\mbox{\Hypertarget{si7021_8c_a2f493ed233e66342493f155ebda5c183}\label{si7021_8c_a2f493ed233e66342493f155ebda5c183}} 
+\index{si7021.c@{si7021.c}!READ\_BIT@{READ\_BIT}}
+\index{READ\_BIT@{READ\_BIT}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{READ\_BIT}{READ\_BIT}}
+{\footnotesize\ttfamily \#define R\+E\+A\+D\+\_\+\+B\+IT~I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+R\+E\+AD}
+
+
+
+I2C master read bit. 
+
+\mbox{\Hypertarget{si7021_8c_a5b2c0ee9f528b38f96b5b6e8e9da13d0}\label{si7021_8c_a5b2c0ee9f528b38f96b5b6e8e9da13d0}} 
+\index{si7021.c@{si7021.c}!SI7021\_SENSOR\_ADDRESS@{SI7021\_SENSOR\_ADDRESS}}
+\index{SI7021\_SENSOR\_ADDRESS@{SI7021\_SENSOR\_ADDRESS}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{SI7021\_SENSOR\_ADDRESS}{SI7021\_SENSOR\_ADDRESS}}
+{\footnotesize\ttfamily \#define S\+I7021\+\_\+\+S\+E\+N\+S\+O\+R\+\_\+\+A\+D\+D\+R\+E\+SS~0x40}
+
+
+
+S\+I7021 register address definitions. 
+
+Master address \mbox{\Hypertarget{si7021_8c_aa1958e6d76aaeccf063159398e9fba32}\label{si7021_8c_aa1958e6d76aaeccf063159398e9fba32}} 
+\index{si7021.c@{si7021.c}!TEMP\_MEASURE\_HOLD@{TEMP\_MEASURE\_HOLD}}
+\index{TEMP\_MEASURE\_HOLD@{TEMP\_MEASURE\_HOLD}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{TEMP\_MEASURE\_HOLD}{TEMP\_MEASURE\_HOLD}}
+{\footnotesize\ttfamily \#define T\+E\+M\+P\+\_\+\+M\+E\+A\+S\+U\+R\+E\+\_\+\+H\+O\+LD~0x\+E3}
+
+
+
+Measure temperature address. 
+
+\mbox{\Hypertarget{si7021_8c_a1939bc96cbb65ab247c83734ac06fb12}\label{si7021_8c_a1939bc96cbb65ab247c83734ac06fb12}} 
+\index{si7021.c@{si7021.c}!TEMP\_PREV@{TEMP\_PREV}}
+\index{TEMP\_PREV@{TEMP\_PREV}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{TEMP\_PREV}{TEMP\_PREV}}
+{\footnotesize\ttfamily \#define T\+E\+M\+P\+\_\+\+P\+R\+EV~0x\+E0}
+
+
+
+Measure from previous measurement address. 
+
+\mbox{\Hypertarget{si7021_8c_a7fc57d5be9f588839a00c75ef2946e17}\label{si7021_8c_a7fc57d5be9f588839a00c75ef2946e17}} 
+\index{si7021.c@{si7021.c}!WRITE\_BIT@{WRITE\_BIT}}
+\index{WRITE\_BIT@{WRITE\_BIT}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{WRITE\_BIT}{WRITE\_BIT}}
+{\footnotesize\ttfamily \#define W\+R\+I\+T\+E\+\_\+\+B\+IT~I2\+C\+\_\+\+M\+A\+S\+T\+E\+R\+\_\+\+W\+R\+I\+TE}
+
+
+
+I2C master write bit. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{si7021_8c_a5f6ade5f34c729fd63eeafa98b94ef1d}\label{si7021_8c_a5f6ade5f34c729fd63eeafa98b94ef1d}} 
+\index{si7021.c@{si7021.c}!get\_relative\_humidity@{get\_relative\_humidity}}
+\index{get\_relative\_humidity@{get\_relative\_humidity}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{get\_relative\_humidity()}{get\_relative\_humidity()}}
+{\footnotesize\ttfamily static float get\+\_\+relative\+\_\+humidity (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Measures the relative humidity. 
+
+\begin{DoxyReturn}{Returns}
+The measured relative humdity in percentage 
+\end{DoxyReturn}
+\mbox{\Hypertarget{si7021_8c_a63853aa7fc351b4d15665e044ecf92c2}\label{si7021_8c_a63853aa7fc351b4d15665e044ecf92c2}} 
+\index{si7021.c@{si7021.c}!get\_temp\_from\_prev\_hr\_measurement@{get\_temp\_from\_prev\_hr\_measurement}}
+\index{get\_temp\_from\_prev\_hr\_measurement@{get\_temp\_from\_prev\_hr\_measurement}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{get\_temp\_from\_prev\_hr\_measurement()}{get\_temp\_from\_prev\_hr\_measurement()}}
+{\footnotesize\ttfamily static float get\+\_\+temp\+\_\+from\+\_\+prev\+\_\+hr\+\_\+measurement (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Reads temperature from previous humidity measurement. 
+
+\begin{DoxyReturn}{Returns}
+The measured temperature in celcius degrees 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+This is however not a new measurement. It gets the value from the registers. 
+\end{DoxyNote}
+\mbox{\Hypertarget{si7021_8c_a3b13d74e81c904fcbf4f27c983aa966a}\label{si7021_8c_a3b13d74e81c904fcbf4f27c983aa966a}} 
+\index{si7021.c@{si7021.c}!i2c\_master\_init@{i2c\_master\_init}}
+\index{i2c\_master\_init@{i2c\_master\_init}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_master\_init()}{i2c\_master\_init()}}
+{\footnotesize\ttfamily static esp\+\_\+err\+\_\+t i2c\+\_\+master\+\_\+init (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+I2C master initialization/configuation settings. 
+
+\begin{DoxyReturn}{Returns}
+The initialization has been succesfully made. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{si7021_8c_a7b2b9f6f28583e8341baf87222781983}\label{si7021_8c_a7b2b9f6f28583e8341baf87222781983}} 
+\index{si7021.c@{si7021.c}!i2c\_master\_measure\_relative\_humidity@{i2c\_master\_measure\_relative\_humidity}}
+\index{i2c\_master\_measure\_relative\_humidity@{i2c\_master\_measure\_relative\_humidity}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_master\_measure\_relative\_humidity()}{i2c\_master\_measure\_relative\_humidity()}}
+{\footnotesize\ttfamily static esp\+\_\+err\+\_\+t i2c\+\_\+master\+\_\+measure\+\_\+relative\+\_\+humidity (\begin{DoxyParamCaption}\item[{i2c\+\_\+port\+\_\+t}]{i2c\+\_\+num,  }\item[{uint8\+\_\+t $\ast$}]{data }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+I2C master measure and reading relative humidity. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i2c\+\_\+num} & i2c port number. \\
+\hline
+{\em data} & buffer contains the relative humidity value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The operation was succesfull or failure. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{si7021_8c_ad875ff237e6de772be59914d1a0f3cdc}\label{si7021_8c_ad875ff237e6de772be59914d1a0f3cdc}} 
+\index{si7021.c@{si7021.c}!i2c\_master\_read\_temperature\_from\_relative\_humidity@{i2c\_master\_read\_temperature\_from\_relative\_humidity}}
+\index{i2c\_master\_read\_temperature\_from\_relative\_humidity@{i2c\_master\_read\_temperature\_from\_relative\_humidity}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_master\_read\_temperature\_from\_relative\_humidity()}{i2c\_master\_read\_temperature\_from\_relative\_humidity()}}
+{\footnotesize\ttfamily static esp\+\_\+err\+\_\+t i2c\+\_\+master\+\_\+read\+\_\+temperature\+\_\+from\+\_\+relative\+\_\+humidity (\begin{DoxyParamCaption}\item[{i2c\+\_\+port\+\_\+t}]{i2c\+\_\+num,  }\item[{uint8\+\_\+t $\ast$}]{data }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+Sequence to read temperature value from previous RH measurement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i2c\+\_\+num} & i2c port number. \\
+\hline
+{\em data} & buffer contains the temperature value. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The operation was succesfull or failure 
+\end{DoxyReturn}
+\mbox{\Hypertarget{si7021_8c_aa590834b1e142cf3db49b08415849a6d}\label{si7021_8c_aa590834b1e142cf3db49b08415849a6d}} 
+\index{si7021.c@{si7021.c}!i2c\_task@{i2c\_task}}
+\index{i2c\_task@{i2c\_task}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_task()}{i2c\_task()}}
+{\footnotesize\ttfamily void i2c\+\_\+task (\begin{DoxyParamCaption}\item[{void $\ast$}]{pv\+Parameters }\end{DoxyParamCaption})}
+
+
+
+A Free\+R\+T\+OS task for measuring temperature and humidity using I2C. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & contains a reference to the queue. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{si7021_8c_acba5eb3851202f97a35b4bb3f9b641c0}\label{si7021_8c_acba5eb3851202f97a35b4bb3f9b641c0}} 
+\index{si7021.c@{si7021.c}!JSON\_TEMPLATE@{JSON\_TEMPLATE}}
+\index{JSON\_TEMPLATE@{JSON\_TEMPLATE}!si7021.c@{si7021.c}}
+\doxysubsubsection{\texorpdfstring{JSON\_TEMPLATE}{JSON\_TEMPLATE}}
+{\footnotesize\ttfamily const char$\ast$ J\+S\+O\+N\+\_\+\+T\+E\+M\+P\+L\+A\+TE = \char`\"{}\{\textbackslash{}\char`\"{}type\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{},\textbackslash{}\char`\"{}value\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{}\}\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+A reusable J\+S\+ON template to send a J\+S\+ON message onto the queue. 

@@ -1,0 +1,282 @@
+\hypertarget{sender_8c}{}\doxysection{main/sender.c File Reference}
+\label{sender_8c}\index{main/sender.c@{main/sender.c}}
+
+
+Sends measurement data to the server and sleeps for 60 seconds.  
+
+
+{\ttfamily \#include \char`\"{}sender.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}freertos/\+Free\+R\+T\+O\+S.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}freertos/task.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}freertos/event\+\_\+groups.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}freertos/queue.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+wifi.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+log.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+sleep.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}nvs\+\_\+flash.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$netdb.\+h$>$}\newline
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{sender_8c_a586542b79d00e4db7e1d5a667ae83a2b}{W\+I\+F\+I\+\_\+\+S\+S\+ID}}~C\+O\+N\+F\+I\+G\+\_\+\+W\+I\+F\+I\+\_\+\+S\+S\+ID
+\begin{DoxyCompactList}\small\item\em S\+S\+ID of Wi-\/\+Fi AP. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a3c95561b03d0fcf9048b231ae2ba90fb}{W\+I\+F\+I\+\_\+\+P\+A\+SS}}~C\+O\+N\+F\+I\+G\+\_\+\+W\+I\+F\+I\+\_\+\+P\+A\+S\+S\+W\+O\+RD
+\begin{DoxyCompactList}\small\item\em Password of Wi-\/\+Fi AP. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a9d7bb7925ff5fa258399011c8259fcfa}{W\+E\+B\+\_\+\+S\+E\+R\+V\+ER}}~\char`\"{}europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net\char`\"{}
+\begin{DoxyCompactList}\small\item\em The root server. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a12f67e13304cf327e83ffe272607a466}{W\+E\+B\+\_\+\+P\+O\+RT}}~80
+\begin{DoxyCompactList}\small\item\em Port number for T\+CP connection. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a7ba333ff88c80841d744b3cac914445e}{W\+E\+B\+\_\+\+U\+RL}}~\char`\"{}http\+://europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net/measurement\char`\"{}
+\begin{DoxyCompactList}\small\item\em H\+T\+TP A\+PI endpoint. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a1e43924adac4ae865aa0acf79710261c}{SA}}~struct sockaddr
+\begin{DoxyCompactList}\small\item\em Structure for socket connection. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a842ed03f27719bc87666bfd1f75415b8}{M\+A\+X\+\_\+\+L\+I\+NE}}~1024
+\begin{DoxyCompactList}\small\item\em Max bits allowed to send in a H\+T\+TP P\+O\+ST request. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a8fc96cee4177a369a99de7026ebeba81}{M\+A\+X\+\_\+\+R\+E\+Q\+U\+E\+S\+TS}}~2
+\begin{DoxyCompactList}\small\item\em Max amount of requests possible. \end{DoxyCompactList}\item 
+\#define \mbox{\hyperlink{sender_8c_a4af2a8a383f07fec0d9f78f2db1c987a}{S\+L\+E\+E\+P\+\_\+\+D\+U\+R\+A\+T\+I\+ON}}~60
+\begin{DoxyCompactList}\small\item\em The deep sleep duration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+static esp\+\_\+err\+\_\+t \mbox{\hyperlink{sender_8c_a9f64a22ed9233d73e2142b9935adcac1}{event\+\_\+handler}} (void $\ast$ctx, system\+\_\+event\+\_\+t $\ast$event)
+\begin{DoxyCompactList}\small\item\em An E\+SP event handler that communicates with the Wi-\/\+Fi driver. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}{initialise\+\_\+wifi}} (void)
+\begin{DoxyCompactList}\small\item\em Setup a Wi-\/\+Fi connection with a AP. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{sender_8c_a47784b3b429f4f872b9de545e30e1ab4}{http\+\_\+post\+\_\+task}} (void $\ast$pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em A Free\+R\+T\+OS task for sending the measurements to the server. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const char $\ast$ \mbox{\hyperlink{sender_8c_a5dfa89a8af5fe03eca1336148a1f3f25}{J\+S\+O\+N\+\_\+\+H\+E\+AD}} = \char`\"{}\{\textbackslash{}\char`\"{}measurements\textbackslash{}\char`\"{}\+:\mbox{[}\char`\"{}
+\begin{DoxyCompactList}\small\item\em The J\+S\+ON formatted message header. \end{DoxyCompactList}\item 
+static const char $\ast$ \mbox{\hyperlink{sender_8c_a14abfae5397f80829470365970635804}{J\+S\+O\+N\+\_\+\+T\+A\+IL}} = \char`\"{}\mbox{]}\}\char`\"{}
+\begin{DoxyCompactList}\small\item\em The J\+S\+ON formatted message tail. \end{DoxyCompactList}\item 
+static const int32\+\_\+t \mbox{\hyperlink{sender_8c_a3ee74efd0314926fd11d6cbe783917f4}{C\+O\+N\+N\+E\+C\+T\+E\+D\+\_\+\+B\+IT}} = B\+I\+T0
+\begin{DoxyCompactList}\small\item\em A 32-\/bit long with only the first bit set. \end{DoxyCompactList}\item 
+static x\+Semaphore\+Handle \mbox{\hyperlink{sender_8c_a852b72b68b782331a45c5be600cc3f3b}{mutex\+\_\+bus}}
+\begin{DoxyCompactList}\small\item\em The mutex bus keeps the shared function protected for a moment. \end{DoxyCompactList}\item 
+static const char $\ast$ \mbox{\hyperlink{sender_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{T\+AG}} = \char`\"{}sender\char`\"{}
+\begin{DoxyCompactList}\small\item\em The T\+AG that is meant as a tag for who is writing to stdout. \end{DoxyCompactList}\item 
+static Event\+Group\+Handle\+\_\+t \mbox{\hyperlink{sender_8c_a20c6ba80259caf6916ca631b853d82af}{wifi\+\_\+event\+\_\+group}}
+\begin{DoxyCompactList}\small\item\em The event group handle that is responsible for receiving events from the Wi-\/\+Fi driver. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Sends measurement data to the server and sleeps for 60 seconds. 
+
+\begin{DoxyAuthor}{Author}
+Bedirhan Dincer
+\end{DoxyAuthor}
+\begin{DoxyParagraph}{Socket error code\+:}
+
+\begin{DoxyEnumerate}
+\item See \href{https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/lwip.html\#socket-error-reason-code}{\texttt{ https\+://docs.\+espressif.\+com/projects/esp-\/idf/en/latest/esp32/api-\/guides/lwip.\+html\#socket-\/error-\/reason-\/code}} 
+\end{DoxyEnumerate}
+\end{DoxyParagraph}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{sender_8c_a842ed03f27719bc87666bfd1f75415b8}\label{sender_8c_a842ed03f27719bc87666bfd1f75415b8}} 
+\index{sender.c@{sender.c}!MAX\_LINE@{MAX\_LINE}}
+\index{MAX\_LINE@{MAX\_LINE}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_LINE}{MAX\_LINE}}
+{\footnotesize\ttfamily \#define M\+A\+X\+\_\+\+L\+I\+NE~1024}
+
+
+
+Max bits allowed to send in a H\+T\+TP P\+O\+ST request. 
+
+\mbox{\Hypertarget{sender_8c_a8fc96cee4177a369a99de7026ebeba81}\label{sender_8c_a8fc96cee4177a369a99de7026ebeba81}} 
+\index{sender.c@{sender.c}!MAX\_REQUESTS@{MAX\_REQUESTS}}
+\index{MAX\_REQUESTS@{MAX\_REQUESTS}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{MAX\_REQUESTS}{MAX\_REQUESTS}}
+{\footnotesize\ttfamily \#define M\+A\+X\+\_\+\+R\+E\+Q\+U\+E\+S\+TS~2}
+
+
+
+Max amount of requests possible. 
+
+60 seconds a time. \mbox{\Hypertarget{sender_8c_a1e43924adac4ae865aa0acf79710261c}\label{sender_8c_a1e43924adac4ae865aa0acf79710261c}} 
+\index{sender.c@{sender.c}!SA@{SA}}
+\index{SA@{SA}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{SA}{SA}}
+{\footnotesize\ttfamily \#define SA~struct sockaddr}
+
+
+
+Structure for socket connection. 
+
+\mbox{\Hypertarget{sender_8c_a4af2a8a383f07fec0d9f78f2db1c987a}\label{sender_8c_a4af2a8a383f07fec0d9f78f2db1c987a}} 
+\index{sender.c@{sender.c}!SLEEP\_DURATION@{SLEEP\_DURATION}}
+\index{SLEEP\_DURATION@{SLEEP\_DURATION}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{SLEEP\_DURATION}{SLEEP\_DURATION}}
+{\footnotesize\ttfamily \#define S\+L\+E\+E\+P\+\_\+\+D\+U\+R\+A\+T\+I\+ON~60}
+
+
+
+The deep sleep duration. 
+
+\mbox{\Hypertarget{sender_8c_a12f67e13304cf327e83ffe272607a466}\label{sender_8c_a12f67e13304cf327e83ffe272607a466}} 
+\index{sender.c@{sender.c}!WEB\_PORT@{WEB\_PORT}}
+\index{WEB\_PORT@{WEB\_PORT}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{WEB\_PORT}{WEB\_PORT}}
+{\footnotesize\ttfamily \#define W\+E\+B\+\_\+\+P\+O\+RT~80}
+
+
+
+Port number for T\+CP connection. 
+
+\mbox{\Hypertarget{sender_8c_a9d7bb7925ff5fa258399011c8259fcfa}\label{sender_8c_a9d7bb7925ff5fa258399011c8259fcfa}} 
+\index{sender.c@{sender.c}!WEB\_SERVER@{WEB\_SERVER}}
+\index{WEB\_SERVER@{WEB\_SERVER}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{WEB\_SERVER}{WEB\_SERVER}}
+{\footnotesize\ttfamily \#define W\+E\+B\+\_\+\+S\+E\+R\+V\+ER~\char`\"{}europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net\char`\"{}}
+
+
+
+The root server. 
+
+\mbox{\Hypertarget{sender_8c_a7ba333ff88c80841d744b3cac914445e}\label{sender_8c_a7ba333ff88c80841d744b3cac914445e}} 
+\index{sender.c@{sender.c}!WEB\_URL@{WEB\_URL}}
+\index{WEB\_URL@{WEB\_URL}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{WEB\_URL}{WEB\_URL}}
+{\footnotesize\ttfamily \#define W\+E\+B\+\_\+\+U\+RL~\char`\"{}http\+://europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net/measurement\char`\"{}}
+
+
+
+H\+T\+TP A\+PI endpoint. 
+
+\mbox{\Hypertarget{sender_8c_a3c95561b03d0fcf9048b231ae2ba90fb}\label{sender_8c_a3c95561b03d0fcf9048b231ae2ba90fb}} 
+\index{sender.c@{sender.c}!WIFI\_PASS@{WIFI\_PASS}}
+\index{WIFI\_PASS@{WIFI\_PASS}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{WIFI\_PASS}{WIFI\_PASS}}
+{\footnotesize\ttfamily \#define W\+I\+F\+I\+\_\+\+P\+A\+SS~C\+O\+N\+F\+I\+G\+\_\+\+W\+I\+F\+I\+\_\+\+P\+A\+S\+S\+W\+O\+RD}
+
+
+
+Password of Wi-\/\+Fi AP. 
+
+\mbox{\Hypertarget{sender_8c_a586542b79d00e4db7e1d5a667ae83a2b}\label{sender_8c_a586542b79d00e4db7e1d5a667ae83a2b}} 
+\index{sender.c@{sender.c}!WIFI\_SSID@{WIFI\_SSID}}
+\index{WIFI\_SSID@{WIFI\_SSID}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{WIFI\_SSID}{WIFI\_SSID}}
+{\footnotesize\ttfamily \#define W\+I\+F\+I\+\_\+\+S\+S\+ID~C\+O\+N\+F\+I\+G\+\_\+\+W\+I\+F\+I\+\_\+\+S\+S\+ID}
+
+
+
+S\+S\+ID of Wi-\/\+Fi AP. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{sender_8c_a9f64a22ed9233d73e2142b9935adcac1}\label{sender_8c_a9f64a22ed9233d73e2142b9935adcac1}} 
+\index{sender.c@{sender.c}!event\_handler@{event\_handler}}
+\index{event\_handler@{event\_handler}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{event\_handler()}{event\_handler()}}
+{\footnotesize\ttfamily static esp\+\_\+err\+\_\+t event\+\_\+handler (\begin{DoxyParamCaption}\item[{void $\ast$}]{ctx,  }\item[{system\+\_\+event\+\_\+t $\ast$}]{event }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+An E\+SP event handler that communicates with the Wi-\/\+Fi driver. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ctx} & reserver for user. \\
+\hline
+{\em event} & application specified event callback. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The operation was succesfull or failure. 
+\end{DoxyReturn}
+\mbox{\Hypertarget{sender_8c_a47784b3b429f4f872b9de545e30e1ab4}\label{sender_8c_a47784b3b429f4f872b9de545e30e1ab4}} 
+\index{sender.c@{sender.c}!http\_post\_task@{http\_post\_task}}
+\index{http\_post\_task@{http\_post\_task}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{http\_post\_task()}{http\_post\_task()}}
+{\footnotesize\ttfamily void http\+\_\+post\+\_\+task (\begin{DoxyParamCaption}\item[{void $\ast$}]{pv\+Parameters }\end{DoxyParamCaption})}
+
+
+
+A Free\+R\+T\+OS task for sending the measurements to the server. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & contains a reference to the queue. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}\label{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}} 
+\index{sender.c@{sender.c}!initialise\_wifi@{initialise\_wifi}}
+\index{initialise\_wifi@{initialise\_wifi}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{initialise\_wifi()}{initialise\_wifi()}}
+{\footnotesize\ttfamily void initialise\+\_\+wifi (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Setup a Wi-\/\+Fi connection with a AP. 
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{sender_8c_a3ee74efd0314926fd11d6cbe783917f4}\label{sender_8c_a3ee74efd0314926fd11d6cbe783917f4}} 
+\index{sender.c@{sender.c}!CONNECTED\_BIT@{CONNECTED\_BIT}}
+\index{CONNECTED\_BIT@{CONNECTED\_BIT}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{CONNECTED\_BIT}{CONNECTED\_BIT}}
+{\footnotesize\ttfamily const int32\+\_\+t C\+O\+N\+N\+E\+C\+T\+E\+D\+\_\+\+B\+IT = B\+I\+T0\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+A 32-\/bit long with only the first bit set. 
+
+\mbox{\Hypertarget{sender_8c_a5dfa89a8af5fe03eca1336148a1f3f25}\label{sender_8c_a5dfa89a8af5fe03eca1336148a1f3f25}} 
+\index{sender.c@{sender.c}!JSON\_HEAD@{JSON\_HEAD}}
+\index{JSON\_HEAD@{JSON\_HEAD}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{JSON\_HEAD}{JSON\_HEAD}}
+{\footnotesize\ttfamily const char$\ast$ J\+S\+O\+N\+\_\+\+H\+E\+AD = \char`\"{}\{\textbackslash{}\char`\"{}measurements\textbackslash{}\char`\"{}\+:\mbox{[}\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The J\+S\+ON formatted message header. 
+
+\mbox{\Hypertarget{sender_8c_a14abfae5397f80829470365970635804}\label{sender_8c_a14abfae5397f80829470365970635804}} 
+\index{sender.c@{sender.c}!JSON\_TAIL@{JSON\_TAIL}}
+\index{JSON\_TAIL@{JSON\_TAIL}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{JSON\_TAIL}{JSON\_TAIL}}
+{\footnotesize\ttfamily const char$\ast$ J\+S\+O\+N\+\_\+\+T\+A\+IL = \char`\"{}\mbox{]}\}\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The J\+S\+ON formatted message tail. 
+
+\mbox{\Hypertarget{sender_8c_a852b72b68b782331a45c5be600cc3f3b}\label{sender_8c_a852b72b68b782331a45c5be600cc3f3b}} 
+\index{sender.c@{sender.c}!mutex\_bus@{mutex\_bus}}
+\index{mutex\_bus@{mutex\_bus}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{mutex\_bus}{mutex\_bus}}
+{\footnotesize\ttfamily x\+Semaphore\+Handle mutex\+\_\+bus\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The mutex bus keeps the shared function protected for a moment. 
+
+\mbox{\Hypertarget{sender_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}\label{sender_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}} 
+\index{sender.c@{sender.c}!TAG@{TAG}}
+\index{TAG@{TAG}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{TAG}{TAG}}
+{\footnotesize\ttfamily const char$\ast$ T\+AG = \char`\"{}sender\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The T\+AG that is meant as a tag for who is writing to stdout. 
+
+\mbox{\Hypertarget{sender_8c_a20c6ba80259caf6916ca631b853d82af}\label{sender_8c_a20c6ba80259caf6916ca631b853d82af}} 
+\index{sender.c@{sender.c}!wifi\_event\_group@{wifi\_event\_group}}
+\index{wifi\_event\_group@{wifi\_event\_group}!sender.c@{sender.c}}
+\doxysubsubsection{\texorpdfstring{wifi\_event\_group}{wifi\_event\_group}}
+{\footnotesize\ttfamily Event\+Group\+Handle\+\_\+t wifi\+\_\+event\+\_\+group\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The event group handle that is responsible for receiving events from the Wi-\/\+Fi driver. 
+

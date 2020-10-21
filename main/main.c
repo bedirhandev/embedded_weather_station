@@ -12,7 +12,7 @@ static xQueueHandle queue;
  * \brief The main entry point for creating the queue and the tasks.
  */
 void app_main(void)
-{
+{	
 	/* Creating a queue that can hold two char pointers. */
 	queue = xQueueCreate(2, sizeof(char*));
 	

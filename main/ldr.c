@@ -1,6 +1,6 @@
 /*!
  * \file ldr.c
- * \brief This file reads the lux from a ldr.
+ * \brief Reads the voltage difference across the ldr and a 100K resistor.
  * \author Bedirhan Dincer
 */
 #include "ldr.h"
@@ -20,6 +20,7 @@ typedef struct { uint32_t lux; } ldr;
 
 /*!
  * \brief A FreeRTOS task for measuring lux using ADC.
+ * \param pvParameters contains a reference to the queue.
  */
 void ldr_task(void *pvParameters)
 {
