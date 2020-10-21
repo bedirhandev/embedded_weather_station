@@ -86,7 +86,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 /*!
  * \brief Setup a Wi-Fi connection with a AP.
  */
-void initialise_wifi(void)
+static void initialise_wifi(void)
 {
 	/* Initialize TCP/IP adapter. */
     tcpip_adapter_init();

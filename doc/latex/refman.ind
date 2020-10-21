@@ -1,9 +1,9 @@
 \begin{theindex}
 
   \item {ACK\_CHECK\_DISABLE}
-    \subitem {si7021.c}, \hyperpage{18}
+    \subitem {si7021.c}, \hyperpage{17}
   \item {ACK\_CHECK\_ENABLE}
-    \subitem {si7021.c}, \hyperpage{18}
+    \subitem {si7021.c}, \hyperpage{17}
   \item {ACK\_VAL}
     \subitem {si7021.c}, \hyperpage{18}
   \item {app\_main}
@@ -33,7 +33,7 @@
   \indexspace
 
   \item {get\_relative\_humidity}
-    \subitem {si7021.c}, \hyperpage{21}
+    \subitem {si7021.c}, \hyperpage{20}
   \item {get\_temp\_from\_prev\_hr\_measurement}
     \subitem {si7021.c}, \hyperpage{21}
 
@@ -60,7 +60,7 @@
   \item {I2C\_MASTER\_RX\_BUF\_DISABLE}
     \subitem {si7021.c}, \hyperpage{18}
   \item {I2C\_MASTER\_SCL\_IO}
-    \subitem {si7021.c}, \hyperpage{19}
+    \subitem {si7021.c}, \hyperpage{18}
   \item {I2C\_MASTER\_SDA\_IO}
     \subitem {si7021.c}, \hyperpage{19}
   \item {I2C\_MASTER\_TX\_BUF\_DISABLE}
@@ -72,7 +72,6 @@
     \subitem {si7021.c}, \hyperpage{19}
   \item {initialise\_wifi}
     \subitem {sender.c}, \hyperpage{13}
-    \subitem {sender.h}, \hyperpage{15}
 
   \indexspace
 
@@ -134,7 +133,7 @@
   \indexspace
 
   \item {READ\_BIT}
-    \subitem {si7021.c}, \hyperpage{20}
+    \subitem {si7021.c}, \hyperpage{19}
 
   \indexspace
 
@@ -161,13 +160,12 @@
     \subitem {WIFI\_SSID}, \hyperpage{12}
   \item {sender.h}
     \subitem {http\_post\_task}, \hyperpage{15}
-    \subitem {initialise\_wifi}, \hyperpage{15}
   \item {si7021.c}
-    \subitem {ACK\_CHECK\_DISABLE}, \hyperpage{18}
-    \subitem {ACK\_CHECK\_ENABLE}, \hyperpage{18}
+    \subitem {ACK\_CHECK\_DISABLE}, \hyperpage{17}
+    \subitem {ACK\_CHECK\_ENABLE}, \hyperpage{17}
     \subitem {ACK\_VAL}, \hyperpage{18}
     \subitem {BAD\_CRC}, \hyperpage{18}
-    \subitem {get\_relative\_humidity}, \hyperpage{21}
+    \subitem {get\_relative\_humidity}, \hyperpage{20}
     \subitem {get\_temp\_from\_prev\_hr\_measurement}, \hyperpage{21}
     \subitem {HUMD\_MEASURE\_HOLD}, \hyperpage{18}
     \subitem {i2c\_master\_init}, \hyperpage{21}
@@ -176,7 +174,7 @@
     \subitem {i2c\_master\_read\_temperature\_from\_relative\_humidity}, 
 		\hyperpage{22}
     \subitem {I2C\_MASTER\_RX\_BUF\_DISABLE}, \hyperpage{18}
-    \subitem {I2C\_MASTER\_SCL\_IO}, \hyperpage{19}
+    \subitem {I2C\_MASTER\_SCL\_IO}, \hyperpage{18}
     \subitem {I2C\_MASTER\_SDA\_IO}, \hyperpage{19}
     \subitem {I2C\_MASTER\_TX\_BUF\_DISABLE}, \hyperpage{19}
     \subitem {i2c\_task}, \hyperpage{22}
@@ -184,7 +182,7 @@
     \subitem {JSON\_TEMPLATE}, \hyperpage{22}
     \subitem {LAST\_NACK\_VAL}, \hyperpage{19}
     \subitem {NACK\_VAL}, \hyperpage{19}
-    \subitem {READ\_BIT}, \hyperpage{20}
+    \subitem {READ\_BIT}, \hyperpage{19}
     \subitem {SI7021\_SENSOR\_ADDRESS}, \hyperpage{20}
     \subitem {TEMP\_MEASURE\_HOLD}, \hyperpage{20}
     \subitem {TEMP\_PREV}, \hyperpage{20}

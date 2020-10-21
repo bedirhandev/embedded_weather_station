@@ -11,7 +11,7 @@ var sender_8c =
     [ "WIFI_SSID", "sender_8c.html#a586542b79d00e4db7e1d5a667ae83a2b", null ],
     [ "event_handler", "sender_8c.html#a9f64a22ed9233d73e2142b9935adcac1", null ],
     [ "http_post_task", "sender_8c.html#a47784b3b429f4f872b9de545e30e1ab4", null ],
-    [ "initialise_wifi", "sender_8c.html#ad0037a88d490bdf2061e563b0fc9d14d", null ],
+    [ "initialise_wifi", "sender_8c.html#a7c493c75ff705f3d785f648614004e99", null ],
     [ "CONNECTED_BIT", "sender_8c.html#a3ee74efd0314926fd11d6cbe783917f4", null ],
     [ "JSON_HEAD", "sender_8c.html#a5dfa89a8af5fe03eca1336148a1f3f25", null ],
     [ "JSON_TAIL", "sender_8c.html#a14abfae5397f80829470365970635804", null ],

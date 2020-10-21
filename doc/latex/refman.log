@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.10) (preloaded format=pdflatex 2020.10.21)  21 OCT 2020 13:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.10) (preloaded format=pdflatex 2020.10.21)  21 OCT 2020 13:59
 entering extended mode
 **./refman.tex
 (refman.tex
@@ -1020,12 +1020,12 @@ Underfull \hbox (badness 10000) detected at line 306
 [][][]
  []
 
-[20]
+
 Underfull \hbox (badness 10000) detected at line 319
 [][][]
  []
 
-
+[20]
 Underfull \hbox (badness 10000) detected at line 322
 [][][]
  []
@@ -1056,19 +1056,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 3--5
 
 
 ]
-Overfull \hbox (15.6327pt too wide) in paragraph at lines 176--178
+Overfull \hbox (15.6327pt too wide) in paragraph at lines 174--176
 []| \T1/phv/m/n/10 i2c_master_read_temperature_from_relative_humidity,
  []
 
 [26]) (refman.aux)
 Package rerunfilecheck Info: File `refman.out' has not changed.
-(rerunfilecheck)             Checksum: 680D3824E26817780106B9D3F1F4F249;17616.
+(rerunfilecheck)             Checksum: D45FF525633E9B8EC308665888324D34;17407.
  ) 
 Here is how much of TeX's memory you used:
- 16995 strings out of 480236
- 257593 string characters out of 2880557
- 603293 words of memory out of 3000000
- 32995 multiletter control sequences out of 15000+200000
+ 16991 strings out of 480236
+ 257461 string characters out of 2880557
+ 608010 words of memory out of 3000000
+ 32993 multiletter control sequences out of 15000+200000
  594035 words of font info for 98 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  95i,14n,111p,454b,639s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1085,9 +1085,9 @@ ams/MiKTeX/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Users/bedir/AppData/Local/Pr
 ograms/MiKTeX/fonts/type1/urw/helvetic/uhvb8ac.pfb><C:/Users/bedir/AppData/Loca
 l/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvr8a.pfb><C:/Users/bedir/AppData/L
 ocal/Programs/MiKTeX/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on refman.pdf (32 pages, 267132 bytes).
+Output written on refman.pdf (32 pages, 265641 bytes).
 PDF statistics:
- 976 PDF objects out of 1000 (max. 8388607)
- 216 named destinations out of 1000 (max. 500000)
- 729 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 967 PDF objects out of 1000 (max. 8388607)
+ 214 named destinations out of 1000 (max. 500000)
+ 721 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -26,7 +26,7 @@ Sends measurement data to the server and sleeps for 60 seconds.
 \begin{DoxyCompactList}\small\item\em Password of Wi-\/\+Fi AP. \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{sender_8c_a9d7bb7925ff5fa258399011c8259fcfa}{W\+E\+B\+\_\+\+S\+E\+R\+V\+ER}}~\char`\"{}europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net\char`\"{}
 \begin{DoxyCompactList}\small\item\em The root server. \end{DoxyCompactList}\item 
-\#define \mbox{\hyperlink{sender_8c_a12f67e13304cf327e83ffe272607a466}{W\+E\+B\+\_\+\+P\+O\+RT}}~80
+\#define \mbox{\hyperlink{sender_8c_a12f67e13304cf327e83ffe272607a466}{W\+E\+B\+\_\+\+P\+O\+RT}}~\char`\"{}80\char`\"{}
 \begin{DoxyCompactList}\small\item\em Port number for T\+CP connection. \end{DoxyCompactList}\item 
 \#define \mbox{\hyperlink{sender_8c_a7ba333ff88c80841d744b3cac914445e}{W\+E\+B\+\_\+\+U\+RL}}~\char`\"{}http\+://europe-\/west1-\/tactical-\/crow-\/272620.cloudfunctions.\+net/measurement\char`\"{}
 \begin{DoxyCompactList}\small\item\em H\+T\+TP A\+PI endpoint. \end{DoxyCompactList}\item 
@@ -43,7 +43,7 @@ Sends measurement data to the server and sleeps for 60 seconds.
 \item 
 static esp\+\_\+err\+\_\+t \mbox{\hyperlink{sender_8c_a9f64a22ed9233d73e2142b9935adcac1}{event\+\_\+handler}} (void $\ast$ctx, system\+\_\+event\+\_\+t $\ast$event)
 \begin{DoxyCompactList}\small\item\em An E\+SP event handler that communicates with the Wi-\/\+Fi driver. \end{DoxyCompactList}\item 
-void \mbox{\hyperlink{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}{initialise\+\_\+wifi}} (void)
+static void \mbox{\hyperlink{sender_8c_a7c493c75ff705f3d785f648614004e99}{initialise\+\_\+wifi}} (void)
 \begin{DoxyCompactList}\small\item\em Setup a Wi-\/\+Fi connection with a AP. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{sender_8c_a47784b3b429f4f872b9de545e30e1ab4}{http\+\_\+post\+\_\+task}} (void $\ast$pv\+Parameters)
 \begin{DoxyCompactList}\small\item\em A Free\+R\+T\+OS task for sending the measurements to the server. \end{DoxyCompactList}\end{DoxyCompactItemize}
@@ -123,7 +123,7 @@ The deep sleep duration.
 \index{sender.c@{sender.c}!WEB\_PORT@{WEB\_PORT}}
 \index{WEB\_PORT@{WEB\_PORT}!sender.c@{sender.c}}
 \doxysubsubsection{\texorpdfstring{WEB\_PORT}{WEB\_PORT}}
-{\footnotesize\ttfamily \#define W\+E\+B\+\_\+\+P\+O\+RT~80}
+{\footnotesize\ttfamily \#define W\+E\+B\+\_\+\+P\+O\+RT~\char`\"{}80\char`\"{}}
 
 
 
@@ -207,11 +207,11 @@ A Free\+R\+T\+OS task for sending the measurements to the server.
 {\em pv\+Parameters} & contains a reference to the queue. \\
 \hline
 \end{DoxyParams}
-\mbox{\Hypertarget{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}\label{sender_8c_ad0037a88d490bdf2061e563b0fc9d14d}} 
+\mbox{\Hypertarget{sender_8c_a7c493c75ff705f3d785f648614004e99}\label{sender_8c_a7c493c75ff705f3d785f648614004e99}} 
 \index{sender.c@{sender.c}!initialise\_wifi@{initialise\_wifi}}
 \index{initialise\_wifi@{initialise\_wifi}!sender.c@{sender.c}}
 \doxysubsubsection{\texorpdfstring{initialise\_wifi()}{initialise\_wifi()}}
-{\footnotesize\ttfamily void initialise\+\_\+wifi (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily static void initialise\+\_\+wifi (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [static]}}
 
 
 

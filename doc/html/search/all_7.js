@@ -10,5 +10,5 @@ var searchData=
   ['i2c_5fmaster_5ftx_5fbuf_5fdisable_21',['I2C_MASTER_TX_BUF_DISABLE',['../si7021_8c.html#aaa0e84f340ef5ea9db2d7624fdadaa26',1,'si7021.c']]],
   ['i2c_5ftask_22',['i2c_task',['../si7021_8c.html#aa590834b1e142cf3db49b08415849a6d',1,'i2c_task(void *pvParameters):&#160;si7021.c'],['../si7021_8h.html#aa590834b1e142cf3db49b08415849a6d',1,'i2c_task(void *pvParameters):&#160;si7021.c']]],
   ['i2c_5ftimeout_23',['I2C_TIMEOUT',['../si7021_8c.html#afa3215f0aa766367f5d34bee80929152',1,'si7021.c']]],
-  ['initialise_5fwifi_24',['initialise_wifi',['../sender_8c.html#ad0037a88d490bdf2061e563b0fc9d14d',1,'initialise_wifi(void):&#160;sender.c'],['../sender_8h.html#ad0037a88d490bdf2061e563b0fc9d14d',1,'initialise_wifi(void):&#160;sender.c']]]
+  ['initialise_5fwifi_24',['initialise_wifi',['../sender_8c.html#a7c493c75ff705f3d785f648614004e99',1,'sender.c']]]
 ];
