@@ -1,0 +1,64 @@
+\hypertarget{ldr_8c}{}\doxysection{main/ldr.c File Reference}
+\label{ldr_8c}\index{main/ldr.c@{main/ldr.c}}
+
+
+Reads the voltage difference across the ldr and a 100K resistor.  
+
+
+{\ttfamily \#include \char`\"{}ldr.\+h\char`\"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$Free\+R\+T\+O\+S.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/task.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/queue.\+h$>$}\newline
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structldr}{ldr}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{ldr_8c_a0e8de2a43dc653b0086afdd1a916c266}{ldr\+\_\+task}} (void $\ast$pv\+Parameters)
+\begin{DoxyCompactList}\small\item\em A Free\+R\+T\+OS task for measuring lux using A\+DC. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static const char $\ast$ \mbox{\hyperlink{ldr_8c_acba5eb3851202f97a35b4bb3f9b641c0}{J\+S\+O\+N\+\_\+\+T\+E\+M\+P\+L\+A\+TE}} = \char`\"{}\{\textbackslash{}\char`\"{}type\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{},\textbackslash{}\char`\"{}value\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{}\}\char`\"{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Reads the voltage difference across the ldr and a 100K resistor. 
+
+\begin{DoxyAuthor}{Author}
+Bedirhan Dincer 
+\end{DoxyAuthor}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{ldr_8c_a0e8de2a43dc653b0086afdd1a916c266}\label{ldr_8c_a0e8de2a43dc653b0086afdd1a916c266}} 
+\index{ldr.c@{ldr.c}!ldr\_task@{ldr\_task}}
+\index{ldr\_task@{ldr\_task}!ldr.c@{ldr.c}}
+\doxysubsubsection{\texorpdfstring{ldr\_task()}{ldr\_task()}}
+{\footnotesize\ttfamily void ldr\+\_\+task (\begin{DoxyParamCaption}\item[{void $\ast$}]{pv\+Parameters }\end{DoxyParamCaption})}
+
+
+
+A Free\+R\+T\+OS task for measuring lux using A\+DC. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pv\+Parameters} & contains a reference to the queue. \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{ldr_8c_acba5eb3851202f97a35b4bb3f9b641c0}\label{ldr_8c_acba5eb3851202f97a35b4bb3f9b641c0}} 
+\index{ldr.c@{ldr.c}!JSON\_TEMPLATE@{JSON\_TEMPLATE}}
+\index{JSON\_TEMPLATE@{JSON\_TEMPLATE}!ldr.c@{ldr.c}}
+\doxysubsubsection{\texorpdfstring{JSON\_TEMPLATE}{JSON\_TEMPLATE}}
+{\footnotesize\ttfamily const char$\ast$ J\+S\+O\+N\+\_\+\+T\+E\+M\+P\+L\+A\+TE = \char`\"{}\{\textbackslash{}\char`\"{}type\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{},\textbackslash{}\char`\"{}value\textbackslash{}\char`\"{}\+:\textbackslash{}\char`\"{}\%s\textbackslash{}\char`\"{}\}\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+A reusable J\+S\+ON template to send a J\+S\+ON message onto the queue. 

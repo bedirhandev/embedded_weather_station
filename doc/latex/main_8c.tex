@@ -1,0 +1,40 @@
+\hypertarget{main_8c}{}\doxysection{main/main.c File Reference}
+\label{main_8c}\index{main/main.c@{main/main.c}}
+{\ttfamily \#include \char`\"{}sender.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}si7021.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}ldr.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}nvs\+\_\+flash.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}esp\+\_\+log.\+h\char`\"{}}\newline
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main}} (void)
+\begin{DoxyCompactList}\small\item\em The main entry point for creating the queue and the tasks. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+static x\+Queue\+Handle \mbox{\hyperlink{main_8c_a704bdd5a2ff95fe42c1f7146f686a882}{queue}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}\label{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}} 
+\index{main.c@{main.c}!app\_main@{app\_main}}
+\index{app\_main@{app\_main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{app\_main()}{app\_main()}}
+{\footnotesize\ttfamily void app\+\_\+main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+The main entry point for creating the queue and the tasks. 
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{main_8c_a704bdd5a2ff95fe42c1f7146f686a882}\label{main_8c_a704bdd5a2ff95fe42c1f7146f686a882}} 
+\index{main.c@{main.c}!queue@{queue}}
+\index{queue@{queue}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{queue}{queue}}
+{\footnotesize\ttfamily x\+Queue\+Handle queue\hspace{0.3cm}{\ttfamily [static]}}
+
+Create the queue for sending and receiving message between Free\+R\+T\+OS tasks 
