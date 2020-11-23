@@ -19,18 +19,9 @@
  * -# Reading temperature from previous measurement.
 */
 #include "si7021.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-#include "esp_log.h"
-#include "esp_system.h"
-#include "nvs_flash.h"
 
 /** A reusable JSON template to send a JSON message onto the queue. */
 static const char* JSON_TEMPLATE = "{\"type\":\"%s\",\"value\":\"%s\"}";
@@ -254,8 +245,7 @@ void i2c_task(void *pvParameters)
 		/* Put the JSON formatted string onto the queue. */
 		xQueueSend((QueueHandle_t *)pvParameters, &message, portMAX_DELAY);
 		
-		/* Delay task for 1 minute. */
-		vTaskDelay((1 * 1000 * 60) / portTICK_RATE_MS);
+		vTaskDelay(1000 * 60);
 	}
 	
 	/* Close the driver. No longer needed. */

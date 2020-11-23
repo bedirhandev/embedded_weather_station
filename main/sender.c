@@ -7,20 +7,14 @@
  * -# See https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/lwip.html#socket-error-reason-code
 */
 #include "sender.h"
-
 #include <string.h>
-#include <stdio.h>
-
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
-
 #include "esp_wifi.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
-
-#include "nvs_flash.h"
+#include "esp_event_loop.h"
 #include <netdb.h>
 
 #define WIFI_SSID CONFIG_WIFI_SSID /*!< SSID of Wi-Fi AP. */
@@ -147,7 +141,7 @@ void http_post_task(void *pvParameters)
 	while (1) {
 		/* Waits for incoming message on the queue and processes each message on the queue. */
 		if (xQueueReceive((QueueHandle_t *)pvParameters, &message, portMAX_DELAY))
-		{  
+		{   
 			/* A mutex is placed on the current process to make sure that no unexpected behaviour occurs. */
 			if (xSemaphoreTake(mutex_bus, portMAX_DELAY))
 			{
@@ -192,7 +186,7 @@ void http_post_task(void *pvParameters)
 				/* Declaration of the content that contains the measurement data. */
 				char content[512];
 		    
-				/* Build the JSON formateed messsage */
+				/* Build the JSON formatted messsage */
 				int length = 0;
 				length += sprintf(content + length, "%s", JSON_HEAD);
 				length += sprintf(content + length, "%s", *message);
@@ -244,7 +238,7 @@ void http_post_task(void *pvParameters)
 					ESP_LOGI(TAG, "Deep sleep mode for 60 seconds.\n");
 					messages_send = 0; // obsolete
 					/* Put the uc into deep sleep mode. */
-					//esp_deep_sleep(1000000UL * SLEEP_DURATION);
+					esp_deep_sleep(1000000 * SLEEP_DURATION);
 				}
 			    
 				/* Free the mutex bus. */

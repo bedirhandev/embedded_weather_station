@@ -1,9 +1,8 @@
 #include "sender.h"
 #include "si7021.h"
 #include "ldr.h"
-
-#include "nvs_flash.h"
-#include "esp_log.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
 
 /** Create the queue for sending and receiving message between FreeRTOS tasks */
 static xQueueHandle queue;
